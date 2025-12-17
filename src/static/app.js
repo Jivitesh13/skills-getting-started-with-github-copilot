@@ -4,6 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
 
+  // expose unregister globally so inline onclick handlers won't throw
+  window.unregisterParticipant = function (email) {
+    console.log(`Unregistered: ${email}`);
+  };
+
   // helper: create initials from email local-part
   function getInitials(email) {
     const local = (email || "").split("@")[0] || "";
@@ -32,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clear loading message
       activitiesList.innerHTML = "";
+      // Reset activity select to default option to avoid duplicates
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
@@ -115,6 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         messageDiv.classList.add("hidden");
       }, 5000);
+      // Refresh activities list so UI reflects the new participant immediately
+      if (response.ok) await fetchActivities();
     } catch (error) {
       messageDiv.textContent = "Failed to sign up. Please try again.";
       messageDiv.className = "error";
